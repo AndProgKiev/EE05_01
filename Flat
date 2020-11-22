@@ -1,0 +1,96 @@
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Flat {
+    private String district;
+    private String address;
+    private float square;
+    private int rooms;
+    private int price;
+
+    public Flat(String district, String address, float square, int rooms, int price) {
+        this.district = district;
+        this.address = address;
+        this.square = square;
+        this.rooms = rooms;
+        this.price = price;
+    }
+
+    public Flat() {
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public float getSquare() {
+        return square;
+    }
+
+    public int getRooms() {
+        return rooms;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void addToBase(Connection con) throws SQLException {
+
+
+        try(PreparedStatement ps=con.prepareStatement(
+           "INSERT  INTO flat(district,address,square,rooms,price)VALUE (?,?,?,?,?)");)
+        {
+            ps.setString(1,district);
+            ps.setString(2,address);
+            ps.setFloat(3,square);
+            ps.setInt(4,rooms);
+            ps.setInt(5,price);
+            ps.executeUpdate();
+        }
+    }
+
+    public static void getPriceParametr(int from, int to, Connection con) throws SQLException {
+        List<Flat> flatList =new ArrayList<>();
+        ResultSet rs = null;
+        String query="select district,address,square,rooms,price from flat";
+       try(Statement st=con.createStatement()) {
+           rs=st.executeQuery(query);
+
+           while (rs.next()){
+               String district=rs.getString(1);
+               String address=rs.getString(2);
+               float square=rs.getFloat(3);
+               int rooms=rs.getInt(4);
+               int price=rs.getInt(5);
+
+               if (price>=from&&price<=to){
+                   flatList.add(new Flat(district,address,square,rooms,price));
+               }
+           }
+
+       }finally {
+           rs.close();
+       }
+
+       for (Flat flat:flatList){
+           System.out.println(flat);
+       }
+    }
+
+    @Override
+    public String toString() {
+        return "Flat{" +
+                "district='" + district + '\'' +
+                ", address='" + address + '\'' +
+                ", square='" + square + '\'' +
+                ", rooms=" + rooms +
+                ", price=" + price +
+                '}';
+    }
+}
