@@ -1,0 +1,45 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class MainTest {
+    public static void main(String[] args) throws SQLException {
+
+        String userName="root";
+        String password="password";
+        String urlConnection="jdbc:mysql://localhost:3306/flat?serverTimezone=Europe/Kiev";
+
+        start(userName, password, urlConnection);
+        try(Connection con= DriverManager.getConnection(urlConnection, userName, password)) {
+
+            Flat f1 = new Flat("Shevchen region", "Shevchenka 23", 20.5f, 1, 10000);
+            Flat f2 = new Flat("Pechersk region", "Drugbi narodiv bul.10", 115.2f, 4, 90000);
+            Flat f3 = new Flat("Pechersk region", "Drugbi narodiv bul.15", 19.3f, 1, 5000);
+            Flat f4 = new Flat("Pechersk region", "Drugbi narodiv bul.1", 38.0f, 1, 18000);
+            Flat f5 = new Flat("Pechersk region", "Drugbi narodiv bul.106", 113.0f, 3, 100000);
+            f1.addToBase(con);
+            f2.addToBase(con);
+            f3.addToBase(con);
+            f4.addToBase(con);
+            f5.addToBase(con);
+
+            Flat.getPriceParametr(10000, 99000, con);
+        }
+    }
+
+    private static void start(String userName, String password, String urlConnection) throws SQLException {
+        try(Connection con= DriverManager.getConnection(urlConnection, userName, password);
+            Statement st=con.createStatement()) {
+            st.execute("DROP TABLE  IF EXISTS flat");
+            st.execute("CREATE TABLE Flat (Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "District VARCHAR (30) Not null," +
+                    "address VARCHAR (30) not null, " +
+                    "square FLOAT not null," +
+                    "rooms INT not null," +
+                    "price INT)");
+
+        }
+    }
+
+}
